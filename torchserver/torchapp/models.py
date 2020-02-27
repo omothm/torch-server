@@ -1,3 +1,4 @@
 from django.db import models
 
-# Create your models here.
+class Banknote(models.Model):
+    image_base64 = models.TextField(blank=False)
