@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from torchapp.models import Banknote
+from .models import Banknote
 
 class BanknoteSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
