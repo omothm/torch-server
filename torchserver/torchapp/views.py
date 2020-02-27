@@ -9,6 +9,11 @@ import json
 @api_view(['GET','POST'])
 def get_banknote(request):
     if request.method == 'GET':
+        # If you're using pylint, you might get a warning that Banknote does not
+        # have an 'objects' member. Ignore this warning. Or if you're using VS
+        # Code, install pylint-django using pip then add this to the
+        # settings.json of the project:
+        # "python.linting.pylintArgs": [ "--load-plugins=pylint_django" ]
         banknote = Banknote.objects.all()
         serializer = BanknoteSerializer(banknote, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
