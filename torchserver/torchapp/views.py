@@ -27,6 +27,7 @@ def get_banknote(request):
 def set_banknote(request,pk):
     try:
         banknote = Banknote.objects.get(pk=pk)
+        serializer = BanknoteSerializer(banknote)
     except banknote.DoesNotExist:
         return  Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -35,7 +36,7 @@ def set_banknote(request,pk):
         return Response(serializer.data,status=status.HTTP_200_OK)
 
     elif request.method == 'PUT':
-        serializer = BanknoteSerializer(banknotes, data=request.data)
+        serializer = BanknoteSerializer(banknote, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
