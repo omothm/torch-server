@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Banknote
 from .serializers import BanknoteSerializer
-from torchapi.api import handle
+#from torchapi.api import handle
 import json
 
 @api_view(['GET','POST'])
@@ -17,8 +17,9 @@ def get_banknote(request):
         serializer = BanknoteSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            api_request = { "request":"banknote","image":serializer.data.get('image_base64')}
-            api_response=handle(json.dumps(api_request))
+            # api_request = { "request":"banknote","image":serializer.data.get('image_base64')}
+            # api_response=handle(json.dumps(api_request))
+            api_response="TEST"
             return Response(api_response, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
