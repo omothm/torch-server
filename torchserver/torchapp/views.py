@@ -3,22 +3,47 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Banknote
 from .serializers import BanknoteSerializer
+from django.http import HttpResponse
 #from torchapi.api import handle
 import json
 
 @api_view(['GET','POST'])
-def get_banknote(request):
+def api_get_request(request):
     if request.method == 'GET':
-        # If you're using pylint, you might get a warning that Banknote does not
-        # have an 'objects' member. Ignore this warning. Or if you're using VS
-        # Code, install pylint-django using pip then add this to the
-        # settings.json of the project:
-        # "python.linting.pylintArgs": [ "--load-plugins=pylint_django" ]
-        banknote = Banknote.objects.all()
-        serializer = BanknoteSerializer(banknote, many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        """
+        GET HTTP request for '{domain}/api/'
+        Expects a parameter on the URL named 'query', it should contaion a JSON
+        E.g.
+            HTTP GET 
+            {domain}/api/?query=
+                {
+                    "requested_service":"banknote_detection",
+                    "b64_encoded_image":"ABCabc123"
+                }
+
+        HTTP response will be in JSON format.
+        E.g.
+            {
+                "status": "ok",
+                "time": "2020-02-25 19:50:53.833346",
+                "response": 100
+            }
+        """
+        request_parameters = request.GET.get('query', '')
+        request_parameters_json = json.loads(request_parameters)
+
+        # Send the query to Torch API and return the output to the client HERE.
+        
+        # Place holder response.
+        return HttpResponse("You have requested (" + str(request_parameters_json['request_service']) + ") service!")
             
     elif request.method == 'POST':
+        """
+            Currently not expecting POST requests, but maybe implemented
+            in the future for receiving binary image files.
+        """
+
+        """
         serializer = BanknoteSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -27,7 +52,12 @@ def get_banknote(request):
             api_response="TEST"
             return Response(api_response, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        """
+        
+        return HttpResponse("Please use GET method to access Torch API.")
 
+
+"""
 @api_view(['GET','PUT','DELETE'])
 def set_banknote(request,pk):
     try:
@@ -51,3 +81,4 @@ def set_banknote(request,pk):
         banknote.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
         
+"""

@@ -2,6 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('banknote/', views.get_banknote),
-    path('banknote/<int:pk>/', views.set_banknote),
+    path('', views.api_get_request),
+    #path('banknote/<int:pk>/', views.set_banknote),
 ]
