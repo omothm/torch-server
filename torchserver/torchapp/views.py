@@ -4,8 +4,9 @@ from rest_framework import status
 from .models import Banknote
 from .serializers import BanknoteSerializer
 from django.http import HttpResponse
-#from torchapi.api import handle
+from torchapi.api import handle
 import json
+import base64
 
 @api_view(['GET','POST'])
 def api_get_request(request):
@@ -17,9 +18,15 @@ def api_get_request(request):
             HTTP GET 
             {domain}/api/?query=
                 {
-                    "requested_service":"banknote_detection",
-                    "b64_encoded_image":"ABCabc123"
+                    "request":"banknote",
+                    "image":"ABCabc123"
                 }
+
+                ### IMPORTANT ###
+                    The value for image must contain a URL safe base64 encoded string! 
+                    (no metatag) --> (data:image/jpeg;base64,)
+                    This string will be then converted into normal base64 because that is what API expects.
+
 
         HTTP response will be in JSON format.
         E.g.
@@ -29,17 +36,43 @@ def api_get_request(request):
                 "response": 100
             }
         """
-        request_parameters = request.GET.get('query', '')
-        request_parameters_json = json.loads(request_parameters)
 
-        # Send the query to Torch API and return the output to the client HERE.
+
+        """
+            ### IMPORTANT ###
+            Don't expect the metatag for the base64 encoded image
+            (The ';' char is a reserved character for the URLs so should not be used.)
+            As a temporary solution just ask for the base 64 URL encoded string and append the 
+            metadata manually before calling the handle function.     
+        """
+
+        # JSON from parameter way
+        query = request.GET.get('query', '')
+        query_json = json.loads(query)
+        #convert the image to normal base64 from URL base64
+        decoded_data = base64.urlsafe_b64decode(query_json['image'].encode('utf-8')) # bytes
+        #Now convert to normal base64 (This is what api expects!)
+        base64_encoded_str = str(base64.b64encode(decoded_data),'utf-8')
+        query_json['image'] = "data:image/jpeg;base64," + base64_encoded_str
+        query_str = json.dumps(query_json)
         
-        # Place holder response.
-        return HttpResponse("You have requested (" + str(request_parameters_json['request_service']) + ") service!")
+
+        try:
+            # Send the query to Torch API and return the output to the client HERE.
+            response = handle(query_str)
+            json_response = json.dumps(response)
+            
+            return HttpResponse(json_response)
+        except Exception as exc:
+            print(type(exc))
+            print(exc)
+            return HttpResponse("An exception occured!")
+
+
             
     elif request.method == 'POST':
         """
-            Currently not expecting POST requests, but maybe implemented
+            Currently not expecting POST requests, but may be implemented
             in the future for receiving binary image files.
         """
 

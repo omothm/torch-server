@@ -1,0 +1,110 @@
+2020-02-28 17:54:36.725630 - i [banknote] Initiating new class
+2020-02-28 17:55:16.971659 - i [banknote] Model loaded
+2020-02-28 19:59:52.353999 - i [banknote] Initiating new class
+2020-02-28 20:00:34.151378 - i [banknote] Model loaded
+2020-02-28 20:01:30.752440 - i [banknote] Initiating new class
+2020-02-28 20:01:31.896676 - e [banknote] Could not load model
+2020-02-28 20:01:31.901678 - i [banknote] Initiating new class
+2020-02-28 20:01:31.909688 - e [banknote] Could not load model
+2020-02-28 20:03:51.967125 - i [banknote] Initiating new class
+2020-02-28 20:04:33.599465 - i [banknote] Model loaded
+2020-02-28 20:18:29.529991 - i [banknote] Initiating new class
+2020-02-28 20:19:10.990294 - i [banknote] Model loaded
+2020-02-28 20:20:03.010102 - i [banknote] Initiating new class
+2020-02-28 20:20:44.919486 - i [banknote] Model loaded
+2020-02-28 20:21:34.114806 - i [banknote] Initiating new class
+2020-02-28 20:22:15.544102 - i [banknote] Model loaded
+2020-02-28 20:25:22.255001 - i [banknote] Initiating new class
+2020-02-28 20:26:05.563719 - i [banknote] Model loaded
+2020-02-28 20:36:50.042358 - i [banknote] Initiating new class
+2020-02-28 20:37:32.821954 - i [banknote] Model loaded
+2020-02-28 20:39:43.976597 - i [banknote] Initiating new class
+2020-02-28 20:40:26.315095 - i [banknote] Model loaded
+2020-02-28 20:40:50.101573 - i [banknote] Initiating new class
+2020-02-28 20:41:31.410843 - i [banknote] Model loaded
+2020-02-28 20:48:23.254343 - i [banknote] Initiating new class
+2020-02-28 20:49:05.764178 - i [banknote] Model loaded
+2020-02-28 20:49:16.360741 - i [banknote] Initiating new class
+2020-02-28 20:49:58.003084 - i [banknote] Model loaded
+2020-02-28 21:31:49.680925 - i [banknote] Initiating new class
+2020-02-28 21:32:31.785136 - i [banknote] Model loaded
+2020-02-28 21:45:07.405545 - i [banknote] Initiating new class
+2020-02-28 21:45:49.210905 - i [banknote] Model loaded
+2020-02-28 22:56:09.256474 - i [banknote] Initiating new class
+2020-02-28 22:56:51.302115 - i [banknote] Model loaded
+2020-02-28 23:00:45.660612 - i [banknote] Initiating new class
+2020-02-28 23:01:12.584978 - i [banknote] Model loaded
+2020-02-28 23:03:38.080948 - i [banknote] Initiating new class
+2020-02-28 23:04:05.738416 - i [banknote] Model loaded
+2020-02-28 23:05:51.188822 - i [banknote] Initiating new class
+2020-02-28 23:06:17.925963 - i [banknote] Model loaded
+2020-02-28 23:07:42.522376 - i [banknote] Initiating new class
+2020-02-28 23:08:09.265353 - i [banknote] Model loaded
+2020-02-28 23:12:37.570003 - i [banknote] Initiating new class
+2020-02-28 23:13:04.430326 - i [banknote] Model loaded
+2020-02-28 23:16:54.113444 - i [banknote] Initiating new class
+2020-02-28 23:17:21.760345 - e [banknote] Could not load model
+2020-02-28 23:17:21.800352 - i [banknote] Initiating new class
+2020-02-28 23:17:36.301978 - i [banknote] Initiating new class
+2020-02-28 23:18:03.826325 - i [banknote] Model loaded
+2020-02-28 23:21:56.446869 - i [banknote] Initiating new class
+2020-02-28 23:22:23.909897 - i [banknote] Model loaded
+2020-02-28 23:22:36.192645 - i [banknote] Initiating new class
+2020-02-28 23:23:02.862946 - i [banknote] Model loaded
+2020-02-28 23:23:51.886396 - i [banknote] Initiating new class
+2020-02-28 23:24:19.085065 - i [banknote] Model loaded
+2020-02-28 23:25:30.337822 - i [banknote] Initiating new class
+2020-02-28 23:25:57.408225 - i [banknote] Model loaded
+2020-02-28 23:34:45.199149 - i [banknote] Initiating new class
+2020-02-28 23:35:11.965382 - i [banknote] Model loaded
+2020-02-28 23:36:28.346889 - i [banknote] Initiating new class
+2020-02-28 23:36:55.287339 - i [banknote] Model loaded
+2020-02-28 23:37:19.322995 - i [banknote] Initiating new class
+2020-02-28 23:37:46.290496 - i [banknote] Model loaded
+2020-02-28 23:39:21.034081 - i [banknote] Initiating new class
+2020-02-28 23:39:48.062422 - i [banknote] Model loaded
+2020-02-28 23:49:00.256367 - i [banknote] Initiating new class
+2020-02-28 23:49:27.482271 - i [banknote] Model loaded
+2020-02-28 23:52:45.113563 - i [banknote] Initiating new class
+2020-02-28 23:53:12.395220 - i [banknote] Model loaded
+2020-02-29 00:00:40.637270 - i [banknote] Initiating new class
+2020-02-29 00:01:08.153238 - i [banknote] Model loaded
+2020-02-29 00:05:43.201521 - i [banknote] Initiating new class
+2020-02-29 00:06:10.121667 - i [banknote] Model loaded
+2020-02-29 00:12:41.763318 - i [banknote] Initiating new class
+2020-02-29 00:13:09.603806 - i [banknote] Model loaded
+2020-02-29 00:15:06.992830 - i [banknote] Initiating new class
+2020-02-29 00:15:34.388727 - i [banknote] Model loaded
+2020-02-29 00:23:22.027234 - i [banknote] Initiating new class
+2020-02-29 00:23:49.155064 - i [banknote] Model loaded
+2020-02-29 00:25:42.308549 - i [banknote] Initiating new class
+2020-02-29 00:26:10.222788 - i [banknote] Model loaded
+2020-02-29 00:27:09.932425 - i [banknote] Initiating new class
+2020-02-29 00:27:37.110240 - i [banknote] Model loaded
+2020-02-29 00:41:48.879014 - i [banknote] Initiating new class
+2020-02-29 00:42:15.746040 - i [banknote] Model loaded
+2020-02-29 00:47:19.192638 - i [banknote] Initiating new class
+2020-02-29 00:47:46.286716 - i [banknote] Model loaded
+2020-02-29 00:49:10.921447 - i [banknote] Initiating new class
+2020-02-29 00:49:37.735443 - i [banknote] Model loaded
+2020-02-29 11:03:18.545412 - i [banknote] Initiating new class
+2020-02-29 11:03:46.283662 - i [banknote] Model loaded
+2020-02-29 11:29:28.807742 - i [banknote] Initiating new class
+2020-02-29 11:29:55.474043 - i [banknote] Model loaded
+2020-02-29 11:30:24.523727 - i [banknote] Initiating new class
+2020-02-29 11:30:51.325044 - i [banknote] Model loaded
+2020-02-29 11:31:29.636466 - i [banknote] Initiating new class
+2020-02-29 11:31:56.431537 - i [banknote] Model loaded
+2020-02-29 11:33:32.068544 - i [banknote] Initiating new class
+2020-02-29 11:33:58.499896 - i [banknote] Model loaded
+2020-02-29 11:34:34.875966 - i [banknote] Initiating new class
+2020-02-29 11:35:01.282099 - i [banknote] Model loaded
+2020-02-29 11:35:34.190119 - i [banknote] Initiating new class
+2020-02-29 11:36:01.166396 - i [banknote] Model loaded
+2020-02-29 11:36:46.185473 - i [banknote] Initiating new class
+2020-02-29 11:37:13.144216 - i [banknote] Model loaded
+2020-02-29 11:37:44.306208 - i [banknote] Initiating new class
+2020-02-29 11:37:58.095743 - e [banknote] Could not load model
+2020-02-29 11:37:58.121747 - i [banknote] Initiating new class
+2020-02-29 11:40:41.278349 - i [banknote] Initiating new class
+2020-02-29 11:41:08.193883 - i [banknote] Model loaded
