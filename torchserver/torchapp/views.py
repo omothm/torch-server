@@ -42,31 +42,45 @@ def api_get_request(request):
             ### IMPORTANT ###
             Don't expect the metatag for the base64 encoded image
             (The ';' char is a reserved character for the URLs so should not be used.)
-            As a temporary solution just ask for the base 64 URL encoded string and append the 
+            As a temporary solution just ask for the base64 URL encoded string and append the 
             metadata manually before calling the handle function.     
         """
 
-        # JSON from parameter way
+        # Get raw JSON from 'query' parameter
         query = request.GET.get('query', '')
-        query_json = json.loads(query)
-        #convert the image to normal base64 from URL base64
-        decoded_data = base64.urlsafe_b64decode(query_json['image'].encode('utf-8')) # bytes
-        #Now convert to normal base64 (This is what api expects!)
-        base64_encoded_str = str(base64.b64encode(decoded_data),'utf-8')
-        query_json['image'] = "data:image/jpeg;base64," + base64_encoded_str
-        query_str = json.dumps(query_json)
-        
+        # Check if the query parameter is provided
+        if query == '':
+            error_response = {}
+            error_response["status"] = "error"
+            error_response["error_origin"] = "client"
+            error_response["error_message"] = "Please provide a valid JSON for 'query' parameter."
+            return HttpResponse(json.dumps(error_response))
+        try:
+            query_json = json.loads(query)
+            #convert the image to normal base64 from URL safe base64
+            decoded_data = base64.urlsafe_b64decode(query_json['image'].encode('utf-8')) # bytes
+            #Now convert to normal base64 (This is what api expects!)
+            base64_encoded_str = str(base64.b64encode(decoded_data),'utf-8')
+            #Append a dummy metatag, this is what API expects.
+            query_json['image'] = "data:image/jpeg;base64," + base64_encoded_str
+            query_str = json.dumps(query_json)
+        except Exception as err:
+            error_response = {}
+            error_response["status"] = "error"
+            error_response["error_origin"] = "torch server"
+            error_response["error_message"] = str(err)
+            return HttpResponse(json.dumps(error_response))
 
         try:
             # Send the query to Torch API and return the output to the client HERE.
             response = handle(query_str)
-            json_response = json.dumps(response)
-            
-            return HttpResponse(json_response)
-        except Exception as exc:
-            print(type(exc))
-            print(exc)
-            return HttpResponse("An exception occured!")
+            return HttpResponse(json.dumps(response))
+        except Exception as err:
+            error_response = {}
+            error_response["status"] = "error"
+            error_response["error_origin"] = "torch API"
+            error_response["error_message"] = str(err)
+            return HttpResponse(json.dumps(error_response))
 
 
             
@@ -86,8 +100,18 @@ def api_get_request(request):
             return Response(api_response, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         """
-        
-        return HttpResponse("Please use GET method to access Torch API.")
+        error_response = {}
+        error_response["status"] = "error"
+        error_response["error_origin"] = "torch server"
+        error_response["error_message"] = "Please use GET method to access Torch API."
+        return HttpResponse(json.dumps(error_response))
+
+    else:
+        error_response = {}
+        error_response["status"] = "error"
+        error_response["error_origin"] = "torch server"
+        error_response["error_message"] = request.method + " is not supported.Please use GET method to access Torch API."
+        return HttpResponse(json.dumps(error_response))
 
 
 """
