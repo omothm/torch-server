@@ -21,15 +21,8 @@ def main():
     with open(os.path.join(_CURRENT_DIR, "input\\url_safe.txt")) as b64file:
         urlsafe_base64 = b64file.read()
 
-    # build the request
-    request = {
-        "request": "banknote",
-        "image": urlsafe_base64
-    }
-    request_str = json.dumps(request)
-
     # send a GET request to the server
-    res = requests.get(url=_URL, params={"query": request_str})
+    res = requests.get(url=_URL, params={"service": "banknote","image":urlsafe_base64})
 
     print(res.text)
 

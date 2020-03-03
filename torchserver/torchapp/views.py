@@ -13,14 +13,13 @@ def api_get_request(request):
     if request.method == 'GET':
         """
         GET HTTP request for '{domain}/api/'
-        Expects a parameter on the URL named 'query', it should contaion a JSON
+        Expects 2 parameter on the URL named 'service' and 'image', 
         E.g.
             HTTP GET 
-            {domain}/api/?query=
-                {
-                    "request":"banknote",
-                    "image":"ABCabc123"
-                }
+            {domain}/api/
+                ?service=banknote
+                &image=ABCabc123
+
 
                 ### IMPORTANT ###
                     The value for image must contain a URL safe base64 encoded string! 
@@ -46,34 +45,38 @@ def api_get_request(request):
             metadata manually before calling the handle function.     
         """
 
-        # Get raw JSON from 'query' parameter
-        query = request.GET.get('query', '')
-        # Check if the query parameter is provided
-        if query == '':
+        # Get the passed in parameters 'service' and 'image'
+        requested_service = request.GET.get('service', '')
+        base64_encoded_image = request.GET.get('image', '')
+        # Check if the service parameter is provided
+        if requested_service == '':
             error_response = {}
             error_response["status"] = "error"
             error_response["error_origin"] = "client"
-            error_response["error_message"] = "Please provide a valid JSON for 'query' parameter."
+            error_response["error_message"] = "Please provide a valid value for 'service' parameter."
             return HttpResponse(json.dumps(error_response))
         try:
-            query_json = json.loads(query)
             #convert the image to normal base64 from URL safe base64
-            decoded_data = base64.urlsafe_b64decode(query_json['image'].encode('utf-8')) # bytes
+            decoded_data = base64.urlsafe_b64decode(base64_encoded_image.encode('utf-8')) # bytes
             #Now convert to normal base64 (This is what api expects!)
             base64_encoded_str = str(base64.b64encode(decoded_data),'utf-8')
             #Append a dummy metatag, this is what API expects.
-            query_json['image'] = "data:image/jpeg;base64," + base64_encoded_str
-            query_str = json.dumps(query_json)
+            base64_encoded_str = "data:image/jpeg;base64," + base64_encoded_str
+            #prepare the request as JSON (for Torch API)
+            api_req = {}
+            api_req['request'] = requested_service
+            api_req['image'] = base64_encoded_str
+            api_req_str = json.dumps(api_req)
         except Exception as err:
+            #An exception happened during the convertion and preperation of JSON
             error_response = {}
             error_response["status"] = "error"
             error_response["error_origin"] = "torch server"
             error_response["error_message"] = str(err)
             return HttpResponse(json.dumps(error_response))
-
         try:
             # Send the query to Torch API and return the output to the client HERE.
-            response = handle(query_str)
+            response = handle(api_req_str)
             return HttpResponse(json.dumps(response))
         except Exception as err:
             error_response = {}
