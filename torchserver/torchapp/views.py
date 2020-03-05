@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from torchapi.api import handle
 import json
 import base64
+import urllib.parse
 
 @api_view(['GET','POST'])
 def api_get_request(request):
@@ -22,9 +23,8 @@ def api_get_request(request):
 
 
                 ### IMPORTANT ###
-                    The value for image must contain a URL safe base64 encoded string! 
-                    (no metatag) --> (data:image/jpeg;base64,)
-                    This string will be then converted into normal base64 because that is what API expects.
+                    The value for image must contain base64 encoded string
+                    This string should start with a metatag --> (data:image/jpeg;base64,)
 
 
         HTTP response will be in JSON format.
@@ -36,18 +36,10 @@ def api_get_request(request):
             }
         """
 
-
-        """
-            ### IMPORTANT ###
-            Don't expect the metatag for the base64 encoded image
-            (The ';' char is a reserved character for the URLs so should not be used.)
-            As a temporary solution just ask for the base64 URL encoded string and append the 
-            metadata manually before calling the handle function.     
-        """
-
         # Get the passed in parameters 'service' and 'image'
         requested_service = request.GET.get('service', '')
-        base64_encoded_image = request.GET.get('image', '')
+        base64_encoded_image = urllib.parse.unquote_plus(request.GET.get('image', '')) # decode the image parameter
+
         # Check if the service parameter is provided
         if requested_service == '':
             error_response = {}
@@ -56,16 +48,10 @@ def api_get_request(request):
             error_response["error_message"] = "Please provide a valid value for 'service' parameter."
             return HttpResponse(json.dumps(error_response))
         try:
-            #convert the image to normal base64 from URL safe base64
-            decoded_data = base64.urlsafe_b64decode(base64_encoded_image.encode('utf-8')) # bytes
-            #Now convert to normal base64 (This is what api expects!)
-            base64_encoded_str = str(base64.b64encode(decoded_data),'utf-8')
-            #Append a dummy metatag, this is what API expects.
-            base64_encoded_str = "data:image/jpeg;base64," + base64_encoded_str
             #prepare the request as JSON (for Torch API)
             api_req = {}
             api_req['request'] = requested_service
-            api_req['image'] = base64_encoded_str
+            api_req['image'] = base64_encoded_image
             api_req_str = json.dumps(api_req)
         except Exception as err:
             #An exception happened during the convertion and preperation of JSON
@@ -74,6 +60,7 @@ def api_get_request(request):
             error_response["error_origin"] = "torch server"
             error_response["error_message"] = str(err)
             return HttpResponse(json.dumps(error_response))
+            
         try:
             # Send the query to Torch API and return the output to the client HERE.
             response = handle(api_req_str)
@@ -89,31 +76,55 @@ def api_get_request(request):
             
     elif request.method == 'POST':
         """
-            Currently not expecting POST requests, but may be implemented
-            in the future for receiving binary image files.
+            POST request expects the 'service' parameter from the url,
+            but the base64 encoded image is expected from the body of the request
         """
+        
 
-        """
-        serializer = BanknoteSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            # api_request = { "request":"banknote","image":serializer.data.get('image_base64')}
-            # api_response=handle(json.dumps(api_request))
-            api_response="TEST"
-            return Response(api_response, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        """
-        error_response = {}
-        error_response["status"] = "error"
-        error_response["error_origin"] = "torch server"
-        error_response["error_message"] = "Please use GET method to access Torch API."
-        return HttpResponse(json.dumps(error_response))
+        # Get the passed in parameters 'service'
+        requested_service = request.GET.get('service', '')
+
+        # get the body of the request (image)
+        base64_encoded_image = request.body.decode('utf-8')
+
+        # Check if the service parameter is provided
+        if requested_service == '':
+            error_response = {}
+            error_response["status"] = "error"
+            error_response["error_origin"] = "client"
+            error_response["error_message"] = "Please provide a valid value for 'service' parameter."
+            return HttpResponse(json.dumps(error_response))
+        try:
+            #prepare the request as JSON (for Torch API)
+            api_req = {}
+            api_req['request'] = requested_service
+            api_req['image'] = base64_encoded_image
+            api_req_str = json.dumps(api_req)
+        except Exception as err:
+            #An exception happened during the convertion and preperation of JSON
+            error_response = {}
+            error_response["status"] = "error"
+            error_response["error_origin"] = "torch server"
+            error_response["error_message"] = str(err)
+            return HttpResponse(json.dumps(error_response))
+            
+        try:
+            # Send the query to Torch API and return the output to the client HERE.
+            response = handle(api_req_str)
+            return HttpResponse(json.dumps(response))
+        except Exception as err:
+            error_response = {}
+            error_response["status"] = "error"
+            error_response["error_origin"] = "torch API"
+            error_response["error_message"] = str(err)
+            return HttpResponse(json.dumps(error_response))
+
 
     else:
         error_response = {}
         error_response["status"] = "error"
         error_response["error_origin"] = "torch server"
-        error_response["error_message"] = request.method + " is not supported.Please use GET method to access Torch API."
+        error_response["error_message"] = request.method + " is not supported.Please use GET or POST method to access Torch API."
         return HttpResponse(json.dumps(error_response))
 
 
