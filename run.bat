@@ -3,11 +3,11 @@
 set fetch=0
 if "%1" == "-f" set fetch=1
 if "%1" == "--fetch" set fetch=1
+set fetcherror=0
 if %fetch% equ 1 (
 	echo Fetching the latest version of the API...
-	set error=0
-	fetch_api || set error=1
-	if %error% equ 1 (
+	fetch_api || set fetcherror=1
+	if %fetcherror% equ 1 (
 		echo Error ocurred in fetching. Terminating...
 		goto terminate
 	)
