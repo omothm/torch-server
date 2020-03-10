@@ -1,15 +1,13 @@
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Banknote
-from .serializers import BanknoteSerializer
-from django.http import HttpResponse
-from torchapi.api import handle
 import json
-import base64
 import urllib.parse
 
-@api_view(['GET','POST'])
+from rest_framework.decorators import api_view
+from django.http import HttpResponse, JsonResponse
+
+import torchapi
+
+
+@api_view(['GET', 'POST'])
 def api_get_request(request):
     if request.method == 'GET':
         """
@@ -35,121 +33,42 @@ def api_get_request(request):
                 "response": 100
             }
         """
+        base64_encoded_image = urllib.parse.unquote_plus(
+            request.GET.get('image', ''))  # decode the image parameter
 
-        # Get the passed in parameters 'service' and 'image'
-        requested_service = request.GET.get('service', '')
-        base64_encoded_image = urllib.parse.unquote_plus(request.GET.get('image', '')) # decode the image parameter
-
-        # Check if the service parameter is provided
-        if requested_service == '':
-            error_response = {}
-            error_response["status"] = "error"
-            error_response["error_origin"] = "client"
-            error_response["error_message"] = "Please provide a valid value for 'service' parameter."
-            return HttpResponse(json.dumps(error_response))
-        try:
-            #prepare the request as JSON (for Torch API)
-            api_req = {}
-            api_req['request'] = requested_service
-            api_req['image'] = base64_encoded_image
-            api_req_str = json.dumps(api_req)
-        except Exception as err:
-            #An exception happened during the convertion and preperation of JSON
-            error_response = {}
-            error_response["status"] = "error"
-            error_response["error_origin"] = "torch server"
-            error_response["error_message"] = str(err)
-            return HttpResponse(json.dumps(error_response))
-            
-        try:
-            # Send the query to Torch API and return the output to the client HERE.
-            response = handle(api_req_str)
-            return HttpResponse(json.dumps(response))
-        except Exception as err:
-            error_response = {}
-            error_response["status"] = "error"
-            error_response["error_origin"] = "torch API"
-            error_response["error_message"] = str(err)
-            return HttpResponse(json.dumps(error_response))
-
-
-            
     elif request.method == 'POST':
         """
             POST request expects the 'service' parameter from the url,
             but the base64 encoded image is expected from the body of the request
         """
-        
-
-        # Get the passed in parameters 'service'
-        requested_service = request.GET.get('service', '')
-
         # get the body of the request (image)
         base64_encoded_image = request.body.decode('utf-8')
 
-        # Check if the service parameter is provided
-        if requested_service == '':
-            error_response = {}
-            error_response["status"] = "error"
-            error_response["error_origin"] = "client"
-            error_response["error_message"] = "Please provide a valid value for 'service' parameter."
-            return HttpResponse(json.dumps(error_response))
-        try:
-            #prepare the request as JSON (for Torch API)
-            api_req = {}
-            api_req['request'] = requested_service
-            api_req['image'] = base64_encoded_image
-            api_req_str = json.dumps(api_req)
-        except Exception as err:
-            #An exception happened during the convertion and preperation of JSON
-            error_response = {}
-            error_response["status"] = "error"
-            error_response["error_origin"] = "torch server"
-            error_response["error_message"] = str(err)
-            return HttpResponse(json.dumps(error_response))
-            
-        try:
-            # Send the query to Torch API and return the output to the client HERE.
-            response = handle(api_req_str)
-            return HttpResponse(json.dumps(response))
-        except Exception as err:
-            error_response = {}
-            error_response["status"] = "error"
-            error_response["error_origin"] = "torch API"
-            error_response["error_message"] = str(err)
-            return HttpResponse(json.dumps(error_response))
-
-
     else:
-        error_response = {}
-        error_response["status"] = "error"
-        error_response["error_origin"] = "torch server"
-        error_response["error_message"] = request.method + " is not supported.Please use GET or POST method to access Torch API."
-        return HttpResponse(json.dumps(error_response))
+        msg = request.method + \
+            " is not supported. Please use GET or POST method to access Torch API."
+        response = torchapi.error_response(origin="server", msg=msg)
+        return JsonResponse(response)
 
+    # Get the passed in parameters 'service'
+    requested_service = request.GET.get('service')
 
-"""
-@api_view(['GET','PUT','DELETE'])
-def set_banknote(request,pk):
     try:
-        banknote = Banknote.objects.get(pk=pk)
-        serializer = BanknoteSerializer(banknote)
-    except banknote.DoesNotExist:
-        return  Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # prepare the request as JSON (for Torch API)
+        api_req = {
+            "request": requested_service,
+            "image": base64_encoded_image
+        }
+        api_req_str = json.dumps(api_req)
+    except Exception as err:
+        # An exception happened during the convertion and preperation of JSON
+        response = torchapi.error_response(origin="server", msg=str(err))
+        return JsonResponse(response)
 
-    if request.method == 'GET':
-        serializer = BanknoteSerializer(banknote)
-        return Response(serializer.data,status=status.HTTP_200_OK)
-
-    elif request.method == 'PUT':
-        serializer = BanknoteSerializer(banknote, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        banknote.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-        
-"""
+    try:
+        # Send the query to Torch API and return the output to the client HERE.
+        response = torchapi.handle(api_req_str)
+        return HttpResponse(response)
+    except Exception as err:
+        response = torchapi.error_response(origin="api", msg=str(err))
+        return JsonResponse(response)
