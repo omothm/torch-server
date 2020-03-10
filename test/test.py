@@ -25,7 +25,7 @@ def main():
 
     service = "banknote"
 
-    print("Sending a GET request...")
+    print(f"Sending a GET request for <{service}>...")
     res = requests.get(url=_URL, params={
         "service": service,
         "image": urllib.parse.quote_plus(example_base64)
@@ -33,9 +33,27 @@ def main():
     print(res.text)
 
     print()
-    print("Sending a POST request...")
+    print(f"Sending a POST request for <{service}>...")
     url = f"{_URL}?service={service}"
     res = requests.post(url=url, data=example_base64)
+    print(res.text)
+
+    service = "a_hypothetical_service"
+
+    print()
+    print(f"Sending a GET request for <{service}>...")
+    res = requests.get(url=_URL, params={
+        "service": service,
+        "image": urllib.parse.quote_plus(example_base64)
+    })
+    print(res.text)
+
+    service = ""
+
+    print()
+    print(f"Sending a POST request for <{service}>...")
+    url = f"{_URL}?service={service}"
+    res = requests.post(url=url)
     print(res.text)
 
 
