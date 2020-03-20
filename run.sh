@@ -19,7 +19,7 @@ fi
 
 echo "Running server..."
 cd torchserver
-python manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 cd ..
 
 exit 0
