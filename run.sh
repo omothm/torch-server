@@ -8,7 +8,7 @@ fetcherror=0
 
 if [ "$fetch" == 1 ] ; then
         echo "Fetching the latest version of the API..."
-        sh ./fetch_api.sh || fetcherror=1
+        ./fetch_api.sh || fetcherror=1
         if [ "$fetcherror" == 1 ] ; then
                 echo "Error ocurred in fetching. Terminating..."
                 exit 0
