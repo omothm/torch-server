@@ -44,7 +44,7 @@ def api_request_handler(request):
     elif request.method == 'POST':
         """
             POST request expects the 'service' parameter from the url,
-            but the base64 encoded image is expected from the body of the request
+            but the base64 encoded image is expected from the body of the request (raw)
         """
         # get the body of the request (image)
         base64_encoded_image = request.body.decode('utf-8')
@@ -86,7 +86,8 @@ def api_request_handler(request):
             unlabeled_dir = os.path.join(os.path.abspath(
                 os.path.join(
                     os.path.join(
-                        current_path, os.pardir), os.pardir)),'inference_results','not_labeled')
+                        current_path, os.pardir), os.pardir)),'inference_results',
+                        'not_labeled')
 
             # Check if the directory exists, create otherwise        
             if not os.path.exists(unlabeled_dir):
@@ -95,8 +96,8 @@ def api_request_handler(request):
             # Generate the name of the file
             dict_response = json.loads(response)
 
-            random_file_name = requested_service + '_' + str(dict_response['response']) + '_' + get_random_name() + '.jpg'
-
+            random_file_name = requested_service + '_' + str(dict_response['response']) + \
+                '_' + get_random_name() + '.jpg'
             
             with open(os.path.join(unlabeled_dir,random_file_name), 'wb') as current_image_file:
                 current_image_file.write(binary_image)
@@ -104,8 +105,14 @@ def api_request_handler(request):
             # Append the filename to response, so that user can confirm the accuracy later
             dict_response['saved_file_name'] = random_file_name
             response = json.dumps(dict_response)
+
+            torchapi.logger.log_i('Database Contribution System',
+                'Saved image file to "inference_results/not_labeled" directory as "' + \
+                    random_file_name + '"')
         except Exception as err:
-            print(err)
+            # Log the error
+            torchapi.logger.log_e('Database Contribution System',
+            str(err))
 
 
         return HttpResponse(response)
@@ -137,13 +144,19 @@ def api_contribute_request_handler(request):
         if image_file_name == "":
             error_response = {}
             error_response['status'] = 'Error'
-            error_response['response'] = 'Please provide the "image_file_name" parameter on the request url.'
+            error_response['response'] = 'Please provide the image_file_name' + \
+                'parameter on the request url.'
+            
+            torchapi.logger.log_w('Database Contribution System',
+                'image_file_name parameter is not provided in the request.')
             return HttpResponse(json.dumps(error_response))
 
 
         # Get the result of classification
         is_correct_classification = request.GET.get('is_correct_classification', 'False')
-        is_correct_classification = (is_correct_classification == True) or (is_correct_classification == "True") or (is_correct_classification == "true")
+        is_correct_classification = (is_correct_classification == True) or \
+            (is_correct_classification == "True") or \
+                (is_correct_classification == "true")
 
         if is_correct_classification :
             # Now move this image to new valid directory
@@ -171,8 +184,11 @@ def api_contribute_request_handler(request):
 
                 # Now move the image to approved folder
                 os.replace(image_path,final_image_destination)
-            
 
+            torchapi.logger.log_i('Database Contribution System',
+            'Approved image file(' + image_file_name + ') is moved into ' + \
+                'directory: ' + approved_target_directory)
+            
     response = {}
     response['status'] = 'ok'
     response['response'] = 'Thanks for your contribution.'
