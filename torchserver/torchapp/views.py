@@ -11,9 +11,16 @@ import random
 
 _POPULATION = list(map(chr, list(range(48, 58)) + list(range(65, 91)) + list(range(97, 123))))
 _RANDOM_STRING_LENGTH = 32
+_CONTRIBUTION_SUPPORTED_SERVICES = ['banknote']
 
 @api_view(['GET', 'POST'])
 def api_request_handler(request):
+    
+    response_object = HttpResponse()
+    # Set shared response headers here
+    response_object['Access-Control-Allow-Origin'] = '*'
+    response_object['content-type'] = 'application/json'
+
     if request.method == 'GET':
         """
         GET HTTP request for '{domain}/api/'
@@ -53,7 +60,8 @@ def api_request_handler(request):
         msg = request.method + \
             " is not supported. Please use GET or POST method to access Torch API."
         response = torchapi.error_response(origin="server", msg=msg)
-        return JsonResponse(response)
+        response_object.content = json.dumps(response)
+        return response_object
 
     # Get the passed in parameters 'service'
     requested_service = request.GET.get('service')
@@ -68,57 +76,59 @@ def api_request_handler(request):
     except Exception as err:
         # An exception happened during the convertion and preperation of JSON
         response = torchapi.error_response(origin="server", msg=str(err))
-        return JsonResponse(response)
+        response_object.content = json.dumps(response)
+        return response_object
 
     try:
         # Send the query to Torch API and return the output to the client HERE.
         response = torchapi.handle(api_req_str)
+        response_object.content = response # Already json.dump() applied
 
+        if requested_service in _CONTRIBUTION_SUPPORTED_SERVICES:
+            # Save this image to the disk to increase the dataset population
+            current_path = os.path.dirname(os.path.realpath(__file__))
 
-        # Save this image to the disk to increase the dataset population
-        current_path = os.path.dirname(os.path.realpath(__file__))
+            # Convert the base64 image to binary image file and save it
+            try:
+                binary_image = torchapi.services.common.base64_to_image_obj(api_req)
 
-        # Convert the base64 image to binary image file and save it
-        try:
-            binary_image = torchapi.services.common.base64_to_image_obj(api_req)
-
-            # Get the unlabeled directory path
-            unlabeled_dir = os.path.join(os.path.abspath(
-                os.path.join(
+                # Get the unlabeled directory path
+                unlabeled_dir = os.path.join(os.path.abspath(
                     os.path.join(
-                        current_path, os.pardir), os.pardir)),'inference_results',
-                        'not_labeled')
+                        os.path.join(
+                            current_path, os.pardir), os.pardir)),'inference_results',
+                            'not_labeled')
 
-            # Check if the directory exists, create otherwise        
-            if not os.path.exists(unlabeled_dir):
-                os.makedirs(unlabeled_dir)
+                # Check if the directory exists, create otherwise        
+                if not os.path.exists(unlabeled_dir):
+                    os.makedirs(unlabeled_dir)
 
-            # Generate the name of the file
-            dict_response = json.loads(response)
+                # Generate the name of the file
+                dict_response = json.loads(response)
 
-            random_file_name = requested_service + '_' + str(dict_response['response']) + \
-                '_' + get_random_name() + '.jpg'
-            
-            with open(os.path.join(unlabeled_dir,random_file_name), 'wb') as current_image_file:
-                current_image_file.write(binary_image)
+                random_file_name = requested_service + '_' + str(dict_response['response']) + \
+                    '_' + get_random_name() + '.jpg'
+                
+                with open(os.path.join(unlabeled_dir,random_file_name), 'wb') as current_image_file:
+                    current_image_file.write(binary_image)
 
-            # Append the filename to response, so that user can confirm the accuracy later
-            dict_response['saved_file_name'] = random_file_name
-            response = json.dumps(dict_response)
+                # Append the filename to response, so that user can confirm the accuracy later
+                dict_response['saved_file_name'] = random_file_name
+                response_object.content = json.dumps(dict_response)
 
-            torchapi.logger.log_i('Database Contribution System',
-                'Saved image file to "inference_results/not_labeled" directory as "' + \
-                    random_file_name + '"')
-        except Exception as err:
-            # Log the error
-            torchapi.logger.log_e('Database Contribution System',
-            str(err))
+                torchapi.logger.log_i('Database Contribution System',
+                    'Saved image file to "inference_results/not_labeled" directory as "' + \
+                        random_file_name + '"')
+            except Exception as err:
+                # Log the error
+                torchapi.logger.log_e('Database Contribution System',
+                str(err))
 
-
-        return HttpResponse(response)
+        return response_object
     except Exception as err:
         response = torchapi.error_response(origin="api", msg=str(err))
-        return JsonResponse(response)
+        response_object.content = json.dumps(response)
+        return response_object
 
 
 @api_view(['GET', 'POST'])
@@ -138,6 +148,12 @@ def api_contribute_request_handler(request):
     """
 
     if request.method == 'GET' or request.method == "POST":
+
+        response_object = HttpResponse()
+        # Set shared response headers here
+        response_object['Access-Control-Allow-Origin'] = '*'
+        response_object['content-type'] = 'application/json'
+
         # Get the image_file name
         image_file_name = request.GET.get('image_file_name', '')
 
@@ -149,7 +165,8 @@ def api_contribute_request_handler(request):
             
             torchapi.logger.log_w('Database Contribution System',
                 'image_file_name parameter is not provided in the request.')
-            return HttpResponse(json.dumps(error_response))
+            response_object.content = json.dumps(error_response)
+            return response_object
 
 
         # Get the result of classification
@@ -192,7 +209,9 @@ def api_contribute_request_handler(request):
     response = {}
     response['status'] = 'ok'
     response['response'] = 'Thanks for your contribution.'
-    return HttpResponse(json.dumps(response))
+
+    response_object.content = json.dumps(response)
+    return response_object
 
 
 def get_random_name() -> str:
