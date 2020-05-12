@@ -5,3 +5,4 @@ db.sqlite3
 temp/
 torchapi/
 inference_results/
+*.DS_Store
