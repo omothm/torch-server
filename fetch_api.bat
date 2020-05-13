@@ -20,7 +20,13 @@ echo Removing old repo...
 rmdir /S /Q %finaldest%
 
 echo Adding new repo...
-move /Y %tempdir%\torch-api\torchapi %finaldest%
+mkdir %finaldest%
+move /Y %tempdir%\torch-api\torchapi %finaldest% || set error=1
+
+if %error% equ 1 (
+	echo Error in the repo. The repo structure is invalid. Terminating...
+	goto cleanup
+)
 
 :cleanup
 
