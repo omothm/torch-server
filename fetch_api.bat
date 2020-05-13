@@ -28,6 +28,20 @@ if %error% equ 1 (
 	goto cleanup
 )
 
+if exist models (
+	echo Detected tensorflow model files, no need to pull and compile again.
+) else (
+	git clone --depth 1 https://github.com/tensorflow/models/
+	pip install cython
+	pip install pycocotools
+	cd models
+	cd research
+	protoc object_detection/protos/*.proto --python_out=.
+	pip install .
+	cd ..
+	cd ..
+)
+
 :cleanup
 
 echo Cleaning up...
